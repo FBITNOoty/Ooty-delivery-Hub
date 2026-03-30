@@ -1,228 +1,689 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ooty Delivery</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ooty Delivery</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-<style>
-body { font-family: Arial; margin:0; background:#f2f2f2; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f2f2f2;
+      color: #222;
+    }
 
-header {
-  background:green;
-  color:white;
-  text-align:center;
-  padding:15px;
-  font-size:22px;
-  font-weight:bold;
-}
+    header {
+      background: green;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-size: 24px;
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
 
-.container { padding:15px; }
+    .container {
+      padding: 15px;
+      max-width: 1100px;
+      margin: auto;
+    }
 
-.card {
-  background:white;
-  padding:15px;
-  margin-bottom:15px;
-  border-radius:10px;
-}
+    .page {
+      display: none;
+    }
 
-.product {
-  display:flex;
-  justify-content:space-between;
-  margin:10px 0;
-}
+    .page.active {
+      display: block;
+    }
 
-button {
-  padding:10px;
-  border:none;
-  border-radius:6px;
-  background:green;
-  color:white;
-  cursor:pointer;
-}
+    .card {
+      background: white;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
 
-button:hover { background:darkgreen; }
+    h2, h3, h4 {
+      margin-top: 0;
+    }
 
-input {
-  width:100%;
-  padding:10px;
-  margin:5px 0;
-}
+    .center {
+      text-align: center;
+    }
 
-.page { display:none; }
-.active { display:block; }
+    button {
+      border: none;
+      border-radius: 8px;
+      background: green;
+      color: white;
+      cursor: pointer;
+      padding: 10px 14px;
+      font-size: 14px;
+      transition: 0.2s;
+    }
 
-.center { text-align:center; }
-.total { font-weight:bold; }
-</style>
+    button:hover {
+      opacity: 0.92;
+    }
+
+    .secondary-btn {
+      background: #444;
+    }
+
+    .danger-btn {
+      background: #c62828;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 6px 0 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    .search-box {
+      margin-bottom: 15px;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 12px;
+    }
+
+    .product-card {
+      border: 1px solid #e5e5e5;
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 180px;
+    }
+
+    .product-name {
+      font-weight: bold;
+      font-size: 15px;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .product-meta {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
+    .price {
+      font-size: 18px;
+      font-weight: bold;
+      color: green;
+      margin-bottom: 12px;
+    }
+
+    .qty-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .qty-btn {
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      font-size: 20px;
+      font-weight: bold;
+      border-radius: 50%;
+      background: #efefef;
+      color: #222;
+    }
+
+    .qty-value {
+      min-width: 32px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .add-cart-btn {
+      width: 100%;
+      background: green;
+    }
+
+    .cart-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid #eee;
+      padding: 12px 0;
+      flex-wrap: wrap;
+    }
+
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+
+    .cart-item-info {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .cart-item-name {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .cart-item-meta {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .cart-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cart-controls button {
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      border-radius: 50%;
+      background: #efefef;
+      color: #222;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .remove-btn {
+      background: #c62828 !important;
+      color: #fff !important;
+      width: auto !important;
+      height: auto !important;
+      padding: 8px 12px !important;
+      border-radius: 8px !important;
+      font-size: 13px !important;
+    }
+
+    .total-box {
+      margin-top: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: right;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+
+    .action-row button {
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .pay-link {
+      word-break: break-all;
+      color: green;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .small-note {
+      font-size: 13px;
+      color: #666;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    .empty-box {
+      text-align: center;
+      color: #666;
+      padding: 20px 10px;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        font-size: 20px;
+      }
+
+      .product-card {
+        min-height: auto;
+      }
+
+      .total-box {
+        text-align: left;
+      }
+    }
+  </style>
 </head>
-
 <body>
 
-<header>🛒 Ooty Delivery</header>
+  <header>🛒 Ooty Delivery</header>
 
-<!-- PAGE 1 -->
-<div id="home" class="container page active center">
-  <h2>Welcome</h2>
-  <button onclick="showPage('products')">Go Shopping</button>
-</div>
+  <!-- HOME -->
+  <div id="home" class="container page active center">
+    <div class="card">
+      <h2>Welcome to Ooty Delivery</h2>
+      <p>Fresh grocery items ready for order</p>
+      <button onclick="showPage('products')">Go Shopping</button>
+    </div>
+  </div>
 
-<!-- PAGE 2 -->
-<div id="products" class="container page">
+  <!-- PRODUCTS -->
+  <div id="products" class="container page">
+    <div class="card">
+      <h3>Products</h3>
+      <input
+        type="text"
+        id="searchInput"
+        class="search-box"
+        placeholder="Search products..."
+        oninput="renderProducts()"
+      />
+      <div id="productsList" class="products-grid"></div>
+    </div>
 
-<div class="card">
-<h3>Products</h3>
+    <div class="card">
+      <h3>Cart</h3>
+      <ul id="cartItems" class="cart-list"></ul>
+      <div id="cartEmpty" class="empty-box">Your cart is empty</div>
+      <div class="total-box">Total: ₹<span id="total">0</span></div>
 
-<div class="product">
-  Chilly powder 500g ₹30
-  <button onclick="add('Chilly powder',30)">Add</button>
-</div>
+      <div class="action-row">
+        <button onclick="goCheckout()">Next</button>
+        <button class="secondary-btn" onclick="showPage('home')">Back Home</button>
+      </div>
+    </div>
+  </div>
 
-<div class="product">
-  Pepper powder 500g ₹50
-  <button onclick="add('Pepper powder',50)">Add</button>
-</div>
+  <!-- CHECKOUT -->
+  <div id="checkout" class="container page">
+    <div class="card">
+      <h3>Place Order</h3>
 
-<div class="product">
-  Sambar podi 500g ₹30
-  <button onclick="add('Sambar podi',30)">Add</button>
-</div>
+      <input id="name" placeholder="Enter Name" />
+      <input id="phone" placeholder="Enter Mobile Number" maxlength="10" />
+      <input id="address" placeholder="Enter Delivery Address" />
 
-</div>
+      <h4>Payment Option</h4>
 
-<div class="card">
-<h3>Cart</h3>
-<ul id="items"></ul>
-<div class="total">Total: ₹<span id="total">0</span></div>
+      <div class="action-row">
+        <button onclick="codOrder()">💵 Cash on Delivery</button>
+        <button onclick="upiPay()">💳 Pay via Payment Link</button>
+      </div>
 
-<button onclick="goCheckout()">Next</button>
-</div>
+      <p><b>PAYMENT LINK :</b></p>
+      <p>
+        <a
+          class="pay-link"
+          href="https://razorpay.me/@nazvionventuresopcprivatelimi"
+          target="_blank"
+        >
+          razorpay.me/@nazvionventuresopcprivatelimi
+        </a>
+      </p>
 
-</div>
+      <p class="small-note">
+        Online payment select பண்ணினா முதலில் Razorpay link open ஆகும்.
+        அதுக்கப்புறம் WhatsApp order message open ஆகும்.
+      </p>
 
-<!-- PAGE 3 -->
-<div id="checkout" class="container page">
+      <div class="action-row">
+        <button class="secondary-btn" onclick="showPage('products')">← Back to Products</button>
+      </div>
+    </div>
+  </div>
 
-<div class="card">
-<h3>Place Order</h3>
+  <script>
+    const WHATSAPP_NUMBER = "916380057950";
+    const PAYMENT_LINK = "https://razorpay.me/@nazvionventuresopcprivatelimi";
 
-<input id="name" placeholder="Enter Name">
-<input id="phone" placeholder="Enter Mobile Number">
+    const products = [
+      { id: 1, name: "(பெரிய ஜவ்வரிசி) Large Sago", grams: 230, price: 20 },
+      { id: 2, name: "(சிறிய ஜவ்வரிசி) Small Sago", grams: 230, price: 20 },
+      { id: 3, name: "(குண்டு மஞ்சள்) Gundu Manjal - Round Turmeric", grams: 60, price: 20 },
+      { id: 4, name: "(நாட்டு கொத்தமல்லி) Country Coriander", grams: 90, price: 20 },
+      { id: 5, name: "பட்டை Cinnamon", grams: 45, price: 20 },
+      { id: 6, name: "(S10 மிளகாய் கொடி) S10 Chilli with Stem", grams: 50, price: 20 },
+      { id: 7, name: "(சீரகம்) Seeragam - Cumin", grams: 45, price: 20 },
+      { id: 8, name: "(வெந்தயம்) Venthiyam - Fenugreek", grams: 150, price: 20 },
+      { id: 9, name: "(பெரிய கடுகு) Periya Kadugu - Large Mustard", grams: 145, price: 20 },
+      { id: 10, name: "(கிராம்பு) Kirambu - Clove", grams: 12, price: 20 },
+      { id: 11, name: "(பிரியாணி இலை) Biriyani Ilai - Bay Leaf", grams: 80, price: 20 },
+      { id: 12, name: "(அன்னாசி பு) Annasi Poo - Star Anise", grams: 17, price: 20 },
+      { id: 13, name: "(மரட்டிங் மொக்கு) Maratti Mokku - Kapok Buds", grams: 34, price: 20 },
+      { id: 14, name: "(கல்பாசி) Kalpasi - Stone Flower", grams: 16, price: 20 },
+      { id: 15, name: "(ஜாதிப்பத்திரி) Jothipathiri - Mace", grams: 4, price: 20 },
+      { id: 16, name: "(ஜாதிகாய்) Jathikai - Nutmeg", grams: 13, price: 20 },
+      { id: 17, name: "(மசிக்காய்) Masikkai - Gallnut", grams: 14, price: 20 },
+      { id: 18, name: "(தாள் பெருங்காயம்) Thaal Perungayam - Asafoetida", grams: 23, price: 20 },
+      { id: 19, name: "(கட்டி பெருங்காயம்) Katti Perungayam - Lump Asafoetida", grams: 23, price: 20 },
+      { id: 20, name: "(ஓமம்) Omam - Carom Seeds", grams: 65, price: 20 },
+      { id: 21, name: "(திடம் வெள்ளை புளி) Solid White Tamarind", grams: 90, price: 20 },
+      { id: 22, name: "(கலர் குடல்) Color Gudal - Colour Jaggery", grams: 340, price: 20 },
+      { id: 23, name: "வெங்காயம் குடல் – Onion Jaggery", grams: 175, price: 20 },
+      { id: 24, name: "Pasta (பாஸ்தா)", grams: 175, price: 20 },
+      { id: 25, name: "சிறிய சோயா துண்டுகள் – Small Soya Chunks", grams: 140, price: 20 },
+      { id: 26, name: "பெரிய சோயா துண்டுகள் – Large Soya Chunks", grams: 140, price: 20 },
+      { id: 27, name: "துவரம் பருப்பு – Toor Dal", grams: 105, price: 20 },
+      { id: 28, name: "பாசிப்பருப்பு – Moong Dal", grams: 115, price: 20 },
+      { id: 29, name: "கடலை பருப்பு – Chana Dal", grams: 170, price: 20 },
+      { id: 30, name: "முழு உளுந்து – Whole Urad Dal", grams: 110, price: 20 },
+      { id: 31, name: "மைசூர் பருப்பு – Mysore Dal", grams: 155, price: 20 },
+      { id: 32, name: "பொட்டுக்கடலை – Roasted Gram", grams: 150, price: 20 },
+      { id: 33, name: "பொலிஷ் பச்சைப்பயறு – Polished Green Gram", grams: 115, price: 20 },
+      { id: 34, name: "தட்டை பயறு – Cowpea", grams: 85, price: 20 },
+      { id: 35, name: "நரி பயறு – Horse Gram (small variety)", grams: 85, price: 20 },
+      { id: 36, name: "அவரை கொட்டை – Hyacinth Beans", grams: 14, price: 20 },
+      { id: 37, name: "கொள்ளு – Horse Gram", grams: 200, price: 20 },
+      { id: 38, name: "கருப்பு கொண்டைக்கடலை – Black Chana", grams: 160, price: 20 },
+      { id: 39, name: "வெள்ளை கொண்டைக்கடலை – White Chana", grams: 150, price: 20 },
+      { id: 40, name: "ராஜ்மா – Kidney Beans", grams: 105, price: 20 },
+      { id: 41, name: "வரகு நிலக்கடலை – Varagu Groundnut", grams: 70, price: 20 },
+      { id: 42, name: "பச்சை நிலக்கடலை – Raw Groundnut", grams: 75, price: 20 },
+      { id: 43, name: "வெள்ளை பட்டாணி – White Peas", grams: 210, price: 20 },
+      { id: 44, name: "பச்சை பட்டாணி – Green Peas", grams: 135, price: 20 },
+      { id: 45, name: "ஆளி விதை – Flax Seeds", grams: 90, price: 20 },
+      { id: 46, name: "கருப்பு எள் – Black Sesame", grams: 75, price: 20 },
+      { id: 47, name: "வெள்ளை எள் – White Sesame", grams: 54, price: 20 },
+      { id: 48, name: "கருங்குறுவை அரிசி – Karunkuruvai Rice", grams: 140, price: 20 },
+      { id: 49, name: "காட்டு யானம் அரிசி – Kaatu Yaanam Rice", grams: 140, price: 20 },
+      { id: 50, name: "முந்திரி – Cashew", grams: 17, price: 20 },
+      { id: 51, name: "பாதாம் – Almond", grams: 14, price: 20 },
+      { id: 52, name: "பிஸ்தா – Pistachio", grams: 5, price: 20 },
+      { id: 53, name: "வால்நட் – Walnut", grams: 10, price: 20 },
+      { id: 54, name: "Athipazham - Fig", grams: 14, price: 20 },
+      { id: 55, name: "முஸ்கட் பேரிச்சை – Muscat Dates", grams: 40, price: 20 },
+      { id: 56, name: "மாப்பிள்ளை சம்பா – Mappilai Samba Rice", grams: 170, price: 20 },
+      { id: 57, name: "கருப்பு கவுனி அரிசி – Black Kavuni Rice", grams: 125, price: 20 },
+      { id: 58, name: "சாமை – Little Millet", grams: 90, price: 20 },
+      { id: 59, name: "வரகு – Kodo Millet", grams: 140, price: 20 },
+      { id: 60, name: "திணை – Foxtail Millet", grams: 140, price: 20 },
+      { id: 61, name: "ராசாசாலா அரிசி – Rasasaala Rice", grams: 100, price: 20 },
+      { id: 62, name: "இலுப்பை சம்பா – Illuppai Samba Rice", grams: 140, price: 20 },
+      { id: 63, name: "கேழ்வரகு – Ragi (Finger Millet)", grams: 230, price: 20 },
+      { id: 64, name: "கம்பு – Bajra (Pearl Millet)", grams: 280, price: 20 },
+      { id: 65, name: "தங்க சம்பா – Thanga Samba Rice", grams: 140, price: 20 },
+      { id: 66, name: "சிவன் சம்பா – Sivan Samba Rice", grams: 140, price: 20 },
+      { id: 67, name: "பனி வரகு – Barnyard Millet", grams: 140, price: 20 },
+      { id: 68, name: "வெல்லம் – Jaggery", grams: 230, price: 20 },
+      { id: 69, name: "சுக்கு – Dry Ginger", grams: 25, price: 20 },
+      { id: 70, name: "உலர் திராட்சை – Dry Grapes (Raisins)", grams: 25, price: 20 },
+      { id: 71, name: "சீரக சம்பா அரிசி – Seeraga Samba Rice", grams: 75, price: 20 },
+      { id: 72, name: "பாஸ்மதி அரிசி – Basmati Rice", grams: 110, price: 20 },
+      { id: 73, name: "மஞ்சள் குடல் – Yellow Gudal", grams: 280, price: 20 },
+      { id: 74, name: "மணி சம்பா – Mani Samba Rice", grams: 140, price: 20 },
+      { id: 75, name: "ஆத்தூர் கிச்சடி சம்பா – Attur Kichadi Samba", grams: 140, price: 20 },
+      { id: 76, name: "அல்லி விதை – Water Lily Seeds", grams: 90, price: 20 },
+      { id: 77, name: "கருப்பு திராட்சை – Black Grapes", grams: 34, price: 20 },
+      { id: 78, name: "கோதுமை – Wheat", grams: 280, price: 20 },
+      { id: 79, name: "பூண்டு குடல் – Garlic Gudal", grams: 170, price: 20 },
+      { id: 80, name: "வெண் தக்காப் குடல் – White Gudal", grams: 170, price: 20 },
+      { id: 81, name: "சிறிய பீன்ஸ் – Small Beans", grams: 140, price: 20 },
+      { id: 82, name: "அவரை பருப்பு – Avarai Dal", grams: 135, price: 20 },
+      { id: 83, name: "கருப்பு பீன்ஸ் – Black Beans", grams: 125, price: 20 },
+      { id: 84, name: "பட்டாணி பருப்பு – Dried Peas Dal", grams: 210, price: 20 },
+      { id: 85, name: "சோம்பு – Fennel Seeds", grams: 85, price: 20 },
+      { id: 86, name: "ஏலக்காய் – Cardamom", grams: 4.5, price: 20 },
+      { id: 87, name: "மிளகு – Black Pepper", grams: 16, price: 20 },
+      { id: 88, name: "இட்லி அரிசி – Idli Rice", grams: 280, price: 20 },
+      { id: 89, name: "பச்சை பட்டாணி – Green Peas", grams: 140, price: 20 },
+      { id: 90, name: "வெங்காயம் – Onion", grams: 46, price: 20 },
+      { id: 91, name: "ஊறுகாய் – Pickle", grams: 250, price: 20 },
+      { id: 92, name: "அப்பளம் – Papad", grams: 250, price: 20 }
+    ];
 
-<h4>Payment Option</h4>
+    const cart = [];
+    const selectedQty = {};
 
-<button onclick="codOrder()">💵 Cash on Delivery</button>
+    function showPage(id) {
+      document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
 
-<br><br>
+    function formatGrams(value) {
+      return Number.isInteger(value) ? `${value}g` : `${value}g`;
+    }
 
-<button onclick="upiPay()">💳 Pay via UPI</button>
+    function getSelectedQty(productId) {
+      return selectedQty[productId] || 1;
+    }
 
-<p>UPI ID: <b>gracesparckletn0409-1@okicici</b></p>
+    function increaseSelectedQty(productId) {
+      selectedQty[productId] = getSelectedQty(productId) + 1;
+      renderProducts();
+    }
 
-</div>
+    function decreaseSelectedQty(productId) {
+      const current = getSelectedQty(productId);
+      if (current > 1) {
+        selectedQty[productId] = current - 1;
+        renderProducts();
+      }
+    }
 
-</div>
+    function addToCart(productId) {
+      const product = products.find(p => p.id === productId);
+      if (!product) return;
 
-<script>
+      const qtyToAdd = getSelectedQty(productId);
+      const existing = cart.find(item => item.id === productId);
 
-let cart=[];
+      if (existing) {
+        existing.qty += qtyToAdd;
+      } else {
+        cart.push({
+          id: product.id,
+          name: product.name,
+          grams: product.grams,
+          price: product.price,
+          qty: qtyToAdd
+        });
+      }
 
-// PAGE SWITCH
-function showPage(id){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-}
+      selectedQty[productId] = 1;
+      renderProducts();
+      renderCart();
+      alert("Item added to cart");
+    }
 
-// ADD TO CART
-function add(name,price){
-  let item = cart.find(i=>i.name===name);
-  if(item){
-    item.qty++;
-  } else {
-    cart.push({name,price,qty:1});
-  }
-  update();
-}
+    function changeCartQty(productId, change) {
+      const item = cart.find(i => i.id === productId);
+      if (!item) return;
 
-// UPDATE TOTAL
-function update(){
-  let list=document.getElementById("items");
-  list.innerHTML="";
-  let total=0;
+      item.qty += change;
 
-  cart.forEach(i=>{
-    let t=i.price*i.qty;
-    total+=t;
+      if (item.qty <= 0) {
+        const index = cart.findIndex(i => i.id === productId);
+        if (index > -1) cart.splice(index, 1);
+      }
 
-    let li=document.createElement("li");
-    li.innerText=`${i.name} x${i.qty} = ₹${t}`;
-    list.appendChild(li);
-  });
+      renderCart();
+    }
 
-  document.getElementById("total").innerText=total;
-}
+    function removeFromCart(productId) {
+      const index = cart.findIndex(i => i.id === productId);
+      if (index > -1) {
+        cart.splice(index, 1);
+      }
+      renderCart();
+    }
 
-// GO CHECKOUT
-function goCheckout(){
-  if(cart.length==0){
-    alert("Cart empty");
-    return;
-  }
-  showPage("checkout");
-}
+    function renderProducts() {
+      const productsList = document.getElementById("productsList");
+      const search = document.getElementById("searchInput").value.trim().toLowerCase();
 
-// COMMON MESSAGE
-function buildMessage(paymentType){
-  let name=document.getElementById("name").value.trim();
-  let phone=document.getElementById("phone").value.trim();
-  let total=document.getElementById("total").innerText;
+      const filteredProducts = products.filter(product =>
+        product.name.toLowerCase().includes(search) ||
+        String(product.grams).includes(search) ||
+        String(product.price).includes(search)
+      );
 
-  if(name=="" || !/^[6-9]\d{9}$/.test(phone)){
-    alert("Enter valid details");
-    return null;
-  }
+      if (filteredProducts.length === 0) {
+        productsList.innerHTML = `<div class="empty-box">No products found</div>`;
+        return;
+      }
 
-  let msg="🛒 Ooty Delivery Order\n\n";
-  msg+=`👤 Name: ${name}\n📞 ${phone}\n\n`;
+      productsList.innerHTML = filteredProducts.map(product => `
+        <div class="product-card">
+          <div>
+            <div class="product-name">${product.name}</div>
+            <div class="product-meta">Weight: ${formatGrams(product.grams)}</div>
+            <div class="price">₹${product.price}</div>
+          </div>
 
-  cart.forEach(i=>{
-    msg+=`${i.name} x${i.qty} = ₹${i.price*i.qty}\n`;
-  });
+          <div>
+            <div class="qty-row">
+              <button class="qty-btn" onclick="decreaseSelectedQty(${product.id})">−</button>
+              <div class="qty-value">${getSelectedQty(product.id)}</div>
+              <button class="qty-btn" onclick="increaseSelectedQty(${product.id})">+</button>
+            </div>
+            <button class="add-cart-btn" onclick="addToCart(${product.id})">Add to Cart</button>
+          </div>
+        </div>
+      `).join("");
+    }
 
-  msg+=`\n💰 Total: ₹${total}\n`;
-  msg+=`💳 Payment: ${paymentType}`;
+    function renderCart() {
+      const cartItems = document.getElementById("cartItems");
+      const cartEmpty = document.getElementById("cartEmpty");
+      const totalEl = document.getElementById("total");
 
-  return msg;
-}
+      if (cart.length === 0) {
+        cartItems.innerHTML = "";
+        cartEmpty.style.display = "block";
+        totalEl.textContent = "0";
+        return;
+      }
 
-// COD ORDER
-function codOrder(){
-  let msg=buildMessage("Cash on Delivery");
-  if(!msg) return;
+      cartEmpty.style.display = "none";
 
-  let url="https://wa.me/916380057950?text="+encodeURIComponent(msg);
-  window.location.href=url;
-}
+      let total = 0;
 
-// UPI PAYMENT
-function upiPay(){
-  let total=document.getElementById("total").innerText;
+      cartItems.innerHTML = cart.map(item => {
+        const itemTotal = item.price * item.qty;
+        total += itemTotal;
 
-  let msg=buildMessage("UPI");
-  if(!msg) return;
+        return `
+          <li class="cart-item">
+            <div class="cart-item-info">
+              <div class="cart-item-name">${item.name}</div>
+              <div class="cart-item-meta">${formatGrams(item.grams)} × ₹${item.price} = ₹${itemTotal}</div>
+            </div>
 
-  let upi=`upi://pay?pa=nancy2103@ybl&pn=OotyDelivery&cu=INR`;
+            <div class="cart-controls">
+              <button onclick="changeCartQty(${item.id}, -1)">−</button>
+              <span><b>${item.qty}</b></span>
+              <button onclick="changeCartQty(${item.id}, 1)">+</button>
+              <button class="remove-btn" onclick="removeFromCart(${item.id})">Remove</button>
+            </div>
+          </li>
+        `;
+      }).join("");
 
-  window.location.href=upi;
+      totalEl.textContent = total;
+    }
 
-  // After payment user sends WhatsApp
-  setTimeout(()=>{
-    let url="https://wa.me/916380057950?text="+encodeURIComponent(msg);
-    window.location.href=url;
-  },5000);
-}
+    function goCheckout() {
+      if (cart.length === 0) {
+        alert("Cart empty");
+        return;
+      }
+      showPage("checkout");
+    }
 
-</script>
+    function validateOrderDetails() {
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const address = document.getElementById("address").value.trim();
+
+      if (name === "") {
+        alert("Please enter name");
+        return false;
+      }
+
+      if (!/^[6-9]\d{9}$/.test(phone)) {
+        alert("Please enter valid mobile number");
+        return false;
+      }
+
+      if (address === "") {
+        alert("Please enter address");
+        return false;
+      }
+
+      return true;
+    }
+
+    function buildMessage(paymentType) {
+      if (!validateOrderDetails()) return null;
+
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const address = document.getElementById("address").value.trim();
+      const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+      let msg = "🛒 Ooty Delivery Order%0A%0A";
+      msg += `👤 Name: ${name}%0A`;
+      msg += `📞 Phone: ${phone}%0A`;
+      msg += `🏠 Address: ${address}%0A%0A`;
+      msg += "📦 Order Details:%0A";
+
+      cart.forEach((item, index) => {
+        msg += `${index + 1}. ${item.name} - ${formatGrams(item.grams)} x ${item.qty} = ₹${item.price * item.qty}%0A`;
+      });
+
+      msg += `%0A💰 Total: ₹${total}%0A`;
+      msg += `💳 Payment: ${paymentType}`;
+
+      return msg;
+    }
+
+    function codOrder() {
+      const msg = buildMessage("Cash on Delivery");
+      if (!msg) return;
+
+      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
+      window.open(url, "_blank");
+    }
+
+    function upiPay() {
+      const msg = buildMessage("Online Payment via Razorpay Link");
+      if (!msg) return;
+
+      window.open(PAYMENT_LINK, "_blank");
+
+      setTimeout(() => {
+        const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
+        window.open(url, "_blank");
+      }, 3000);
+    }
+
+    renderProducts();
+    renderCart();
+  </script>
 
 </body>
 </html>
