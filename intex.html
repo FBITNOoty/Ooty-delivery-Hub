@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ooty Delivery</title>
+
+<style>
+body { font-family: Arial; margin:0; background:#f2f2f2; }
+
+header {
+  background:green;
+  color:white;
+  text-align:center;
+  padding:15px;
+  font-size:22px;
+  font-weight:bold;
+}
+
+.container { padding:15px; }
+
+.card {
+  background:white;
+  padding:15px;
+  margin-bottom:15px;
+  border-radius:10px;
+}
+
+.product {
+  display:flex;
+  justify-content:space-between;
+  margin:10px 0;
+}
+
+button {
+  padding:10px;
+  border:none;
+  border-radius:6px;
+  background:green;
+  color:white;
+  cursor:pointer;
+}
+
+button:hover { background:darkgreen; }
+
+input {
+  width:100%;
+  padding:10px;
+  margin:5px 0;
+}
+
+.page { display:none; }
+.active { display:block; }
+
+.center { text-align:center; }
+.total { font-weight:bold; }
+</style>
+</head>
+
+<body>
+
+<header>🛒 Ooty Delivery</header>
+
+<!-- PAGE 1 -->
+<div id="home" class="container page active center">
+  <h2>Welcome</h2>
+  <button onclick="showPage('products')">Go Shopping</button>
+</div>
+
+<!-- PAGE 2 -->
+<div id="products" class="container page">
+
+<div class="card">
+<h3>Products</h3>
+
+<div class="product">
+  Chilly powder 500g ₹30
+  <button onclick="add('Chilly powder',30)">Add</button>
+</div>
+
+<div class="product">
+  Pepper powder 500g ₹50
+  <button onclick="add('Pepper powder',50)">Add</button>
+</div>
+
+<div class="product">
+  Sambar podi 500g ₹30
+  <button onclick="add('Sambar podi',30)">Add</button>
+</div>
+
+</div>
+
+<div class="card">
+<h3>Cart</h3>
+<ul id="items"></ul>
+<div class="total">Total: ₹<span id="total">0</span></div>
+
+<button onclick="goCheckout()">Next</button>
+</div>
+
+</div>
+
+<!-- PAGE 3 -->
+<div id="checkout" class="container page">
+
+<div class="card">
+<h3>Place Order</h3>
+
+<input id="name" placeholder="Enter Name">
+<input id="phone" placeholder="Enter Mobile Number">
+
+<h4>Payment Option</h4>
+
+<button onclick="codOrder()">💵 Cash on Delivery</button>
+
+<br><br>
+
+<button onclick="upiPay()">💳 Pay via UPI</button>
+
+<p>UPI ID: <b>gracesparckletn0409-1@okicici</b></p>
+
+</div>
+
+</div>
+
+<script>
+
+let cart=[];
+
+// PAGE SWITCH
+function showPage(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+// ADD TO CART
+function add(name,price){
+  let item = cart.find(i=>i.name===name);
+  if(item){
+    item.qty++;
+  } else {
+    cart.push({name,price,qty:1});
+  }
+  update();
+}
+
+// UPDATE TOTAL
+function update(){
+  let list=document.getElementById("items");
+  list.innerHTML="";
+  let total=0;
+
+  cart.forEach(i=>{
+    let t=i.price*i.qty;
+    total+=t;
+
+    let li=document.createElement("li");
+    li.innerText=`${i.name} x${i.qty} = ₹${t}`;
+    list.appendChild(li);
+  });
+
+  document.getElementById("total").innerText=total;
+}
+
+// GO CHECKOUT
+function goCheckout(){
+  if(cart.length==0){
+    alert("Cart empty");
+    return;
+  }
+  showPage("checkout");
+}
+
+// COMMON MESSAGE
+function buildMessage(paymentType){
+  let name=document.getElementById("name").value.trim();
+  let phone=document.getElementById("phone").value.trim();
+  let total=document.getElementById("total").innerText;
+
+  if(name=="" || !/^[6-9]\d{9}$/.test(phone)){
+    alert("Enter valid details");
+    return null;
+  }
+
+  let msg="🛒 Ooty Delivery Order\n\n";
+  msg+=`👤 Name: ${name}\n📞 ${phone}\n\n`;
+
+  cart.forEach(i=>{
+    msg+=`${i.name} x${i.qty} = ₹${i.price*i.qty}\n`;
+  });
+
+  msg+=`\n💰 Total: ₹${total}\n`;
+  msg+=`💳 Payment: ${paymentType}`;
+
+  return msg;
+}
+
+// COD ORDER
+function codOrder(){
+  let msg=buildMessage("Cash on Delivery");
+  if(!msg) return;
+
+  let url="https://wa.me/916380057950?text="+encodeURIComponent(msg);
+  window.location.href=url;
+}
+
+// UPI PAYMENT
+function upiPay(){
+  let total=document.getElementById("total").innerText;
+
+  let msg=buildMessage("UPI");
+  if(!msg) return;
+
+  let upi=`upi://pay?pa=nancy2103@ybl&pn=OotyDelivery&cu=INR`;
+
+  window.location.href=upi;
+
+  // After payment user sends WhatsApp
+  setTimeout(()=>{
+    let url="https://wa.me/916380057950?text="+encodeURIComponent(msg);
+    window.location.href=url;
+  },5000);
+}
+
+</script>
+
+</body>
+</html>
